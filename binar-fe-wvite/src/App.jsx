@@ -15,13 +15,20 @@ function App() {
         setToDoList(newTodoList)
     }
     useEffect(() => {
-      setToDoList(toDoListSample)
+        setToDoList(toDoListSample)
+        fetchUser()
     }, [])
-    
+
+    const fetchUser = async () => {
+        const response = await fetch('https://randomuser.me/api/?results=10')
+        const data = await response.json()
+        console.log(data);
+    }
+
     useEffect(() => {
-      alert('there is a change on to do List')
+        alert('there is a change on to do List')
     }, [toDoList])
-    
+
     return (
         <div>
             <table class="table">
