@@ -6,6 +6,7 @@ import Users from './pages/Users'
 import BarChart from './pages/BarChart'
 import { PieChart } from './pages/PieChart'
 import { Provider } from './context/Provider'
+import Navbar from './components/navbar'
 
 const router = createBrowserRouter([
     {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
 export default function AppRouting() {
     return (
         <Provider>
+            <Navbar />
             <RouterProvider router={router} />
         </Provider>
     )
