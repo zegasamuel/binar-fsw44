@@ -6,7 +6,7 @@ module.exports = class {
         if (user.length ==0) {
             next()
         }else {
-            res.json({status: 400, message: 'Email already exist'})
+            res.status(401).json({status: 401, message: 'Email already exist'})
         }
     }
     static checkIsAdmin = async (req, res, next) => {

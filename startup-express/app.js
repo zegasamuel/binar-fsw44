@@ -1,3 +1,4 @@
+require('dotenv')
 var createError = require('http-errors')
 var express = require('express')
 var path = require('path')
@@ -37,7 +38,7 @@ app.set('view engine', 'ejs')
 
 app.use(logger('dev'))
 app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
