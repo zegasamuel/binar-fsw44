@@ -1,55 +1,46 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const bucket = require('../config/firebase.confg');
+const multerS3 = require('multer-s3')
+const multer = require('multer')
+const { S3Client } = require('@aws-sdk/client-s3')
+const { Upload } = require('@aws-sdk/lib-storage')
+const path = require('path')
 
-const app = express();
-const port = 3000;
+const s3 = new S3Client({
+    endpoint: 'http://localhost:9000', // MinIO server URL
+    region: 'us-east-1', // region is required but can be any string
+    credentials: {
+        accessKeyId: 'minioadmin', // MinIO access key
+        secretAccessKey: 'minioadmin', // MinIO secret key
+    },
+    forcePathStyle: true, // needed with MinIO
+})
 
-// Set up Multer storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+
+const storage = multerS3({
+    s3: s3,
+    bucket: 'cobain',
+    acl: 'public-read',
+    key: function (req, file, cb) {
+        const extension = path.extname(file.originalname)
+        const filename = Date.now() + '-' + path.basename(file.originalname, extension) + extension
+        cb(null, filename)
+    }
+})
+
+const upload = multer({ storage: storage })
 
 const fileUploadMiddleware = (req, res, next) => {
-    const uploadHandler = upload.single('profile_picture');
+    const uploadHandler = upload.single('profile_picture')
     uploadHandler(req, res, (err) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+            console.log(err);
+            console.log(err.message);
+            return res.status(500).json({ error: err.message })
         }
-
         if (req.file) {
-            const blob = bucket.file(Date.now() + '-' + req.file.originalname);
-            const blobStream = blob.createWriteStream({
-                metadata: {
-                    contentType: req.file.mimetype
-                }
-            });
-
-            blobStream.on('error', (error) => {
-                return res.status(500).json({ error: error.message });
-            });
-
-            blobStream.on('finish', async () => {
-                // Make the file public (optional)
-                await blob.makePublic();
-
-                // Construct the public URL
-                req.fileUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-
-                next();
-            });
-
-            blobStream.end(req.file.buffer);
-        } else {
-            next();
+            req.fileUrl = req.file.location
         }
-    });
-};
+        next()
+    })
+}
 
-app.post('/upload', fileUploadMiddleware, (req, res) => {
-    res.send({ fileUrl: req.fileUrl });
-});
-
-app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`);
-});
+module.exports = fileUploadMiddleware

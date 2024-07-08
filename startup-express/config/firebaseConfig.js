@@ -1,6 +1,5 @@
-require('dotenv').config()
-const admin = require('firebase-admin');
-
+const firebase = require('firebase/app');
+require('firebase/storage');
 
 const firebaseConfig = {
     apiKey: 'AIzaSyBib1KM6Uvi77meu9Htd1vQeICbXXylXdc',
@@ -10,13 +9,10 @@ const firebaseConfig = {
     messagingSenderId: '1022411747469',
     appId: '1:1022411747469:web:50b40f68d5de7dc32f72c4',
     measurementId: 'G-GDPR3VF7Y1',
-}
+};
 
-admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    storageBucket: firebaseConfig.storageBucket,
-})
+firebase.initializeApp(firebaseConfig);
 
-const bucket = admin.storage().bucket()
+const storage = firebase.storage();
 
-module.exports = bucket;
+module.exports = storage;
